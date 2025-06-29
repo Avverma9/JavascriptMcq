@@ -1,7 +1,7 @@
 {
-  "name": "javascript-mcq-app",
+  "name": "your-project-name",
   "version": "1.0.0",
-  "description": "A simple MCQ application built with Node.js, Express, and MongoDB.",
+  "description": "A Node.js application using Express, Mongoose, and PDFKit.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,16 +9,18 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "mcq",
+    "node",
     "express",
     "mongoose",
-    "nodejs"
+    "pdfkit",
+    "nodemon"
   ],
-  "author": "",
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
-    "mongoose": "^8.4.1"
+    "mongoose": "^8.4.0",
+    "pdfkit": "^0.15.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.2"
