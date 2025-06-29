@@ -13,7 +13,8 @@
     "express",
     "mongoose",
     "pdfkit",
-    "nodemon"
+    "nodemon",
+    "multer",
   ],
   "author": "Your Name",
   "license": "ISC",
