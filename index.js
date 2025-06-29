@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT =  3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -251,5 +251,5 @@ function escapeHTML(str) {
 }
 
 app.listen(PORT, () => {
-    console.log(\`Server http://localhost:\${PORT} par chal raha hai\`);
+    console.log(`Server http://localhost:\${PORT} par chal raha hai`);
 });
