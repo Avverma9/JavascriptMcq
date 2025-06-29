@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const multer = require('multer');
+const pdf = require('pdf-parse');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,6 +36,57 @@ app.post('/api/mcqs', async (req, res) => {
         res.status(500).json({ message: "Server error." });
     }
 });
+
+app.post('/api/upload-pdf', upload.single('pdfFile'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'Koi file upload nahi hui.' });
+    }
+
+    try {
+        const data = await pdf(req.file.buffer);
+        const text = data.text;
+        
+        const parsedMcqs = parseTextToMcqs(text);
+
+        if (parsedMcqs.length === 0) {
+            return res.status(400).json({ message: 'Is PDF mein koi valid format ka MCQ nahi mila.' });
+        }
+
+        await Mcq.insertMany(parsedMcqs);
+        res.status(201).json({ message: `${parsedMcqs.length} sawaal सफलतापूर्वक jod diye gaye hain!` });
+
+    } catch (error) {
+        console.error('PDF parse error:', error);
+        res.status(500).json({ message: 'PDF process karne mein error aaya.' });
+    }
+});
+
+function parseTextToMcqs(text) {
+    const mcqs = [];
+    const regex = /^\s*(?:\d+\.|\w+\.)\s*([\s\S]+?)\n\s*A\)\s*(.+?)\n\s*B\)\s*(.+?)\n\s*C\)\s*(.+?)\n\s*D\)\s*(.+?)\n\s*Answer:\s*([A-D])/gmi;
+    
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        const questionText = match[1].trim();
+        const options = [
+            match[2].trim(),
+            match[3].trim(),
+            match[4].trim(),
+            match[5].trim()
+        ];
+        const answerLetter = match[6].trim().toUpperCase();
+        const correctAnswerIndex = 'ABCD'.indexOf(answerLetter);
+
+        if (questionText && options.length === 4 && correctAnswerIndex !== -1) {
+            mcqs.push({
+                questionText,
+                options,
+                correctAnswerIndex
+            });
+        }
+    }
+    return mcqs;
+}
 
 app.get('/', async (req, res) => {
     try {
@@ -200,7 +255,19 @@ app.get('/admin', async (req, res) => {
                     </header>
                     <main>
                         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
-                            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Naya Sawaal Banayein</h2>
+                            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">PDF se Sawaal Upload Karein</h2>
+                            <form id="pdfUploadForm">
+                                <div class="mb-4">
+                                    <label for="pdfFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PDF File Chunein</label>
+                                    <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                                </div>
+                                <button type="submit" id="pdfUploadBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-md">PDF Upload Karein</button>
+                                <div id="pdf-message" class="mt-4 text-center"></div>
+                            </form>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+                            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Ek-Ek Karke Sawaal Banayein</h2>
                             <form id="mcqForm">
                                 <div class="mb-4">
                                     <label for="questionText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sawaal Likhein</label>
@@ -244,6 +311,52 @@ app.get('/admin', async (req, res) => {
                             alert('Sawaal save nahi ho paya.');
                         }
                     });
+
+                    const pdfForm = document.getElementById('pdfUploadForm');
+                    const pdfMessage = document.getElementById('pdf-message');
+                    const pdfUploadBtn = document.getElementById('pdfUploadBtn');
+
+                    pdfForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        const formData = new FormData();
+                        const pdfFile = document.getElementById('pdfFile').files[0];
+                        
+                        if(!pdfFile) {
+                            pdfMessage.textContent = 'Please ek PDF file chunein.';
+                            pdfMessage.className = 'mt-4 text-center text-red-500';
+                            return;
+                        }
+
+                        formData.append('pdfFile', pdfFile);
+                        
+                        pdfMessage.textContent = 'Uploading aur process ho raha hai...';
+                        pdfMessage.className = 'mt-4 text-center text-blue-500';
+                        pdfUploadBtn.disabled = true;
+                        pdfUploadBtn.textContent = 'Processing...';
+
+                        try {
+                            const response = await fetch('/api/upload-pdf', {
+                                method: 'POST',
+                                body: formData,
+                            });
+                            
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                pdfMessage.textContent = result.message;
+                                pdfMessage.className = 'mt-4 text-center text-green-500';
+                                setTimeout(() => window.location.reload(), 2000);
+                            } else {
+                                throw new Error(result.message);
+                            }
+                        } catch (error) {
+                            pdfMessage.textContent = 'Error: ' + error.message;
+                            pdfMessage.className = 'mt-4 text-center text-red-500';
+                            pdfUploadBtn.disabled = false;
+                            pdfUploadBtn.textContent = 'PDF Upload Karein';
+                        }
+                    });
+
                      function escapeHTML(str) {
                         const p = document.createElement('p');
                         p.appendChild(document.createTextNode(str));
