@@ -338,8 +338,8 @@ const renderQuizPage = async (req, res) => {
                                     </p>
                                     <div class="options-list space-y-3">
                                         \${mcq.options.map((option, optionIndex) => \`
-                                            <div class="option border-2 border-gray-300 dark:border-gray-600 p-3 rounded-lg flex items-center" onclick="selectAnswer(this, \${optionIndex})">
-                                                <span class="font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">\${option}</span>
+                                            <div class="option border-2 border-black-300 dark:border-black-600 p-3 rounded-lg flex items-center" onclick="selectAnswer(this, \${optionIndex})">
+                                                <span class="font-medium text-black-700 dark:text-red-300 text-sm sm:text-base">\${option}</span>
                                             </div>
                                         \`).join('')}
                                     </div>
