@@ -1,6 +1,6 @@
 {
   "name": "your-project-name",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A Node.js application using Express, Mongoose, and PDFKit.",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,8 @@
     "pdfkit",
     "nodemon",
     "multer",
-    "pdf-parse"
+    "pdf-parse",
+    "bcryptjs"
   ],
   "author": "Your Name",
   "license": "ISC",
@@ -24,7 +25,9 @@
     "mongoose": "^8.4.0",
     "pdfkit": "^0.15.0",
     "multer": "^1.4.5-lts.1",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "express-session": "^1.18.0",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.2"
