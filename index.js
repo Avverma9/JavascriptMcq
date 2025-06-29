@@ -124,7 +124,7 @@ app.get('/', (req, res) => {
             ${renderHeader(req)}
             <main class="flex items-center justify-center min-h-[calc(100vh-120px)] p-4 text-center">
                 <div class="w-full max-w-2xl mx-auto">
-                    <h1 class="text-4xl sm:text-6xl font-extrabold text-gray-800 dark:text-white mb-4">Welcome to QuizMaster</h1>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold text-black-800 dark:text-black mb-4">Welcome to QuizMaster</h1>
                     <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">Your ultimate destination for creating, sharing, and playing quizzes.</p>
                     <div class="flex justify-center items-center space-x-4">
                         <a href="/login" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-full transition-transform transform hover:scale-105">Login</a>
