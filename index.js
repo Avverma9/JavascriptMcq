@@ -507,92 +507,139 @@ app.get('/admin', requireAdmin, async (req, res) => {
             <body>
                 ${renderHeader(req)}
                 <div class="container mx-auto max-w-7xl p-4">
-                    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-1 space-y-6">
-                            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Upload Public Questions</h2>
-                                <form id="pdfUploadForm" class="space-y-4">
-                                    <div>
-                                        <label for="pdfFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select PDF File</label>
-                                        <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900"/>
-                                    </div>
-                                    <button type="submit" id="pdfUploadBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-md">Upload PDF</button>
-                                    <div id="pdf-message" class="mt-3 text-center text-sm"></div>
-                                </form>
-                            </div>
-                             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Create a Public Question</h2>
-                                <form id="mcqForm" class="space-y-4">
-                                    <div>
-                                        <label for="questionText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question</label>
-                                        <textarea id="questionText" rows="2" required class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Options (select correct answer)</label>
-                                        <div class="space-y-2">
-                                            ${[...Array(4)].map((_, i) => `
-                                                <div class="flex items-center space-x-2">
-                                                    <input type="radio" name="correctAnswer" value="${i}" ${i === 0 ? 'checked' : ''} class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500">
-                                                    <input type="text" name="option" required placeholder="Option ${i + 1}" class="flex-grow p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm">
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-md">Save Public Question</button>
-                                </form>
-                            </div>
-                             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Database Maintenance</h2>
-                                <button id="cleanupBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-md">Cleanup Duplicate Questions</button>
-                                <div id="cleanup-message" class="mt-3 text-center text-sm"></div>
+                    <main class="space-y-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Format for PDF Upload</h2>
+                            <div class="relative bg-gray-100 dark:bg-gray-900 rounded-lg p-4">
+                                <button id="copy-btn" class="absolute top-2 right-2 p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600" title="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <pre id="pdf-format-example" class="text-sm text-gray-700 dark:text-gray-300" style="white-space: pre-wrap; word-wrap: break-word;"><code>1. What is the output of 'console.log(typeof null)' in JavaScript?
+A) null
+B) undefined
+C) object
+D) string
+Answer: C
+
+2. Which company developed the JavaScript language?
+A) Microsoft
+B) Sun Microsystems
+C) Netscape
+D) Google
+Answer: C</code></pre>
                             </div>
                         </div>
-                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-                                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">User Management</h2>
-                                <form action="/admin" method="GET" class="flex-grow sm:max-w-xs w-full">
-                                    <div class="flex">
-                                        <input type="text" name="search" placeholder="Search by email..." value="${escapeHTML(searchQuery)}" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-l-md dark:bg-gray-700 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                        <button type="submit" class="bg-indigo-600 text-white px-4 rounded-r-md hover:bg-indigo-700">Search</button>
-                                    </div>
-                                </form>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="lg:col-span-1 space-y-6">
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                                    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Upload Public Questions</h2>
+                                    <form id="pdfUploadForm" class="space-y-4">
+                                        <div>
+                                            <label for="pdfFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select PDF File</label>
+                                            <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900"/>
+                                        </div>
+                                        <button type="submit" id="pdfUploadBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-md">Upload PDF</button>
+                                        <div id="pdf-message" class="mt-3 text-center text-sm"></div>
+                                    </form>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                                    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Create a Public Question</h2>
+                                    <form id="mcqForm" class="space-y-4">
+                                        <div>
+                                            <label for="questionText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question</label>
+                                            <textarea id="questionText" rows="2" required class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Options (select correct answer)</label>
+                                            <div class="space-y-2">
+                                                ${[...Array(4)].map((_, i) => `
+                                                    <div class="flex items-center space-x-2">
+                                                        <input type="radio" name="correctAnswer" value="${i}" ${i === 0 ? 'checked' : ''} class="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+                                                        <input type="text" name="option" required placeholder="Option ${i + 1}" class="flex-grow p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm">
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-md">Save Public Question</button>
+                                    </form>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                                    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Database Maintenance</h2>
+                                    <button id="cleanupBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-md">Cleanup Duplicate Questions</button>
+                                    <div id="cleanup-message" class="mt-3 text-center text-sm"></div>
+                                </div>
                             </div>
-                            <button id="disableSelectedBtn" class="mb-4 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md text-sm">Disable Selected</button>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><input type="checkbox" id="selectAllCheckbox"></th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        ${users.map(user => `
+                            <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">User Management</h2>
+                                    <form action="/admin" method="GET" class="flex-grow sm:max-w-xs w-full">
+                                        <div class="flex">
+                                            <input type="text" name="search" placeholder="Search by email..." value="${escapeHTML(searchQuery)}" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-l-md dark:bg-gray-700 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                            <button type="submit" class="bg-indigo-600 text-white px-4 rounded-r-md hover:bg-indigo-700">Search</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <button id="disableSelectedBtn" class="mb-4 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md text-sm">Disable Selected</button>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                        <thead class="bg-gray-50 dark:bg-gray-700">
                                             <tr>
-                                                <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="user-checkbox" value="${user._id}"></td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${escapeHTML(user.email)}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                                        ${user.isActive ? 'Active' : 'Disabled'}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <button onclick="toggleStatus('${user._id}', ${user.isActive})" class="${user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}">
-                                                        ${user.isActive ? 'Disable' : 'Enable'}
-                                                    </button>
-                                                </td>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><input type="checkbox" id="selectAllCheckbox"></th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Action</th>
                                             </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                            ${users.map(user => `
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="user-checkbox" value="${user._id}"></td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${escapeHTML(user.email)}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                                            ${user.isActive ? 'Active' : 'Disabled'}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <button onclick="toggleStatus('${user._id}', ${user.isActive})" class="${user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}">
+                                                            ${user.isActive ? 'Disable' : 'Enable'}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </main>
                 </div>
                 ${renderFooter()}
                 <script>
+                    // --- SCRIPT FOR COPY BUTTON ---
+                    const copyBtn = document.getElementById('copy-btn');
+                    const originalCopyIcon = copyBtn.innerHTML;
+                    const copiedIcon = \`
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    \`;
+                    copyBtn.addEventListener('click', () => {
+                        const textToCopy = document.getElementById('pdf-format-example').innerText;
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            copyBtn.innerHTML = copiedIcon;
+                            setTimeout(() => {
+                                copyBtn.innerHTML = originalCopyIcon;
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy text: ', err);
+                            alert('Failed to copy.');
+                        });
+                    });
+
+                    // --- OTHER ADMIN SCRIPTS ---
                     async function toggleStatus(userId, currentStatus) {
                         const action = currentStatus ? 'disable' : 'enable';
                         if (confirm(\`Are you sure you want to \${action} this user?\`)) {
@@ -651,7 +698,7 @@ app.get('/admin', requireAdmin, async (req, res) => {
                         const response = await fetch('/api/mcqs', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ questionText, options, correctAnswerIndex: parseInt(correctAnswerIndex) }),
+                            body: JSON.stringify({ questionText, options, correctAnswerIndex: parseInt(correctAnswerIndex), author: null }), // Public questions have null author
                         });
                         if (response.ok) {
                             alert('Public question saved successfully!');
@@ -690,7 +737,7 @@ app.get('/admin', requireAdmin, async (req, res) => {
                             if (response.ok) {
                                 pdfMessage.textContent = result.message;
                                 pdfMessage.className = 'mt-3 text-center text-sm text-green-500';
-                                setTimeout(() => { pdfMessage.textContent = ''; }, 3000);
+                                setTimeout(() => { pdfMessage.textContent = ''; }, 5000);
                             } else {
                                 throw new Error(result.message);
                             }
